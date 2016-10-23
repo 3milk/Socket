@@ -134,8 +134,9 @@ public class Request implements HttpServletRequest{//ServletRequest {
 		return null;
 	}
 
+	
 	public ServletInputStream getInputStream() throws IOException {
-		return null;
+		return (ServletInputStream) this.input;
 	}
 
 	public Locale getLocale() {

@@ -1,4 +1,1 @@
-PrimitiveServlet
-LoginServlet
-web.xml
-已在项目中
+jsp文件夹中有两个jsp文件

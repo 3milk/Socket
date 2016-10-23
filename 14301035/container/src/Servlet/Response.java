@@ -35,7 +35,7 @@ public class Response implements HttpServletResponse {
 		FileInputStream fis = null;
 		try {
 			/* request.getUri has been replaced by request.getRequestURI */
-			System.out.println("Response:: sendStaticResource():: " + (String) Constants.WEB_ROOT + request.getUri());
+			//System.out.println("Response:: sendStaticResource():: " + (String) Constants.WEB_ROOT + request.getUri());
 			File file = new File(Constants.WEB_ROOT, request.getUri());
 			fis = new FileInputStream(file);
 			/*
@@ -76,7 +76,7 @@ public class Response implements HttpServletResponse {
 	}
 
 	public ServletOutputStream getOutputStream() throws IOException {
-		return null;
+		return (ServletOutputStream) this.output;
 	}
 
 	public PrintWriter getWriter() throws IOException {

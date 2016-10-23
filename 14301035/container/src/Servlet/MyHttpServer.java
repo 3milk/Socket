@@ -71,9 +71,13 @@ public class MyHttpServer {
 				}
 				*/
 				//默认全部为servlet请求，并不想管静态资源处理
-				MyServletProcessor processor = new MyServletProcessor();
-				processor.process(request, response);				
-                
+				//if (request.getUri().endsWith(".jsp")) {
+					MyJSPServletProcessor jProcessor = new MyJSPServletProcessor();
+					jProcessor.process(request, response, input, output);
+				/*} else {
+    				MyServletProcessor processor = new MyServletProcessor();
+	    			processor.process(request, response);				
+				}*/
 				
 				// 关闭 socket
 				socket.close();

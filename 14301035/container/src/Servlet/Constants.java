@@ -7,5 +7,10 @@ public class Constants {
  + File.separator + "webroot";
  public static final String WEB_SERVLET_ROOT = System.getProperty("user.dir")
  + File.separator + "target" + File.separator + "classes";
-  
+ public static final String JSP_ROOT = System.getProperty("user.dir")
+		 + File.separator + "jsp";
+ public static final String JSP_SERVLET_ROOT = System.getProperty("user.dir")
+		 + File.separator + "src" + File.separator + "JSPServlet";
+ public static final String JSP_CLASS_ROOT = System.getProperty("user.dir")
+		 + File.separator + "bin" + File.separator + "JSPServlet";
 }
