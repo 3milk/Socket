@@ -1,0 +1,2 @@
+测试类在test包中
+在老师提供的代码基础上增加了AnnotationParser, 修改了XMLBeanFactory
