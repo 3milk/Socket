@@ -18,6 +18,10 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import test.boss;
+import test.aop.FooInterface;
+import dev.aop.Advice;
+import dev.aop.framework.ProxyFactory;
+import dev.aop.support.NameMatchMethodPointcutAdvisor;
 import dev.bean.BeanDefinition;
 import dev.bean.BeanUtil;
 import dev.bean.PropertyValue;
@@ -30,20 +34,20 @@ public class XMLBeanFactory extends AbstractBeanFactory{
 	private String xmlPath;
 	private AnnotationParser ap;
 	
-	public XMLBeanFactory(Resource resource)
+	public XMLBeanFactory(Resource resource) throws ClassNotFoundException
 	{
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dbBuilder = dbFactory.newDocumentBuilder();
 			Document document = dbBuilder.parse(resource.getInputStream());
 			
-			//指定包路径下扫描@component
+			/*指定包路径下扫描@component
 			//NodeList componentPackage = document.getElementsByTagName("component-scan");
             ap = new AnnotationParser("test");//TODO TODO
             Map<String, BeanDefinition> componentBeanDefinitionMap = ap.componentScan();
             for(Entry<String, BeanDefinition> entry:componentBeanDefinitionMap.entrySet()){    
                 this.registerBeanDefinition(entry.getKey(), entry.getValue());    
-            }
+            }*/
 			
 			//beanList处理
 			NodeList beanList = document.getElementsByTagName("bean");
@@ -53,9 +57,51 @@ public class XMLBeanFactory extends AbstractBeanFactory{
             	BeanDefinition beandef = new BeanDefinition();
             	String beanClassName = bean.getAttributes().getNamedItem("class").getNodeValue();
             	String beanName = bean.getAttributes().getNamedItem("id").getNodeValue();
-            	
+            	//System.out.println(beanName + "   beanclass:" + beanClassName);
         		beandef.setBeanClassName(beanClassName);
+        		////////工厂bean
+        		if(beanClassName.equals("ProxyFactory")) {
+        			ProxyFactory proxyFactory = new ProxyFactory();
+            		NodeList propertyList0 = bean.getChildNodes();
+            		for(int j = 0 ; j < propertyList0.getLength(); j++)
+                	{
+                		Node property = propertyList0.item(j);
+                		if (property instanceof Element) {
+                			Element ele = (Element) property;
+            				
+            				String name = ele.getAttribute("name");
+            				if(name.equals("interfaces")) {
+            					Object value = ele.getAttribute("value");
+            					String interfaceName = (String)value;
+            					Class<?> interfaces = Class.forName(interfaceName);
+                    			proxyFactory.setInterfaces(interfaces);
+            				}
+            				if(name.equals("targetSource")) {
+    	        				Object refName = ele.getAttribute("ref");
+            					Object ref = this.getBean((String) refName);
+            					proxyFactory.setTarget(ref);
+            				}
+            				if(name.equals("advisor")) {
+            					Object value = ele.getAttribute("value");
+            					Object methodClass = this.getBean((String) value);
+            					NameMatchMethodPointcutAdvisor advisor = new NameMatchMethodPointcutAdvisor();
+            					advisor.setAdvice((Advice) methodClass);
+            					proxyFactory.setAdvisor(advisor);
+            				}
+            			}
+            		}
+            	
+            		PropertyValues propertyValues = new PropertyValues();
+					beandef.setPropertyValues(propertyValues);
+            		FooInterface foo = (FooInterface)proxyFactory.getProxy();
+					beandef.setBean(foo);
+
+                	this.registerBeanDefinition(beanName, beandef);
+        			continue;
+        		}
         		
+        		
+        		////////普通bean
 				try {
 					Class<?> beanClass = Class.forName(beanClassName);
 					beandef.setBeanClass(beanClass);
@@ -122,26 +168,23 @@ public class XMLBeanFactory extends AbstractBeanFactory{
 			// set BeanClass for BeanDefinition
 			
 			Class<?> beanClass = beanDefinition.getBeanClass();
-			//Class<?> beanClass = Class.forName(beanDefinition.getBeanClassName());
 
 			// set Bean Instance for BeanDefinition
-			Object bean = ap.autowiredConstruct(this, beanClass);//使用autowire自动装配
+			//Object bean = ap.autowiredConstruct(this, beanClass);//使用autowire自动装配
+			Object bean = beanDefinition.getBean();
 			if(bean == null) {
-				//System.out.println("Default Constructor");
 			    bean = beanClass.newInstance();	//调用默认构造器
 			}
 			if(bean == null) {
 				System.out.println("NULL");
 			}
-			//System.out.println("Bean: " + bean.getClass());
 
 			List<PropertyValue> fieldDefinitionList = beanDefinition.getPropertyValues().GetPropertyValues();
 			for(PropertyValue propertyValue: fieldDefinitionList)
 			{
-				//System.out.println("Bean: " + bean + propertyValue.getName()+ propertyValue.getValue());
 				BeanUtil.invokeSetterMethod(bean, propertyValue.getName(), propertyValue.getValue());
 			}
-			
+						
 			beanDefinition.setBean(bean);
 			
 			return beanDefinition;
