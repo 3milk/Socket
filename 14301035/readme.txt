@@ -1,3 +1,5 @@
-测试类在test.aop包中
-使用了老师的AOP部分代码
-完善了XMLBeanFactory对工厂Bean的处理
+framework.DispatcherServlet里展示框架主要业务流程，包括获得Controller,调用url对应的方法，渲染modelAndView
+framework.ModelAndView 定义了ModelAndView类
+Controller, RequestMapping 在dev.factory.AnnotationParser中定义
+其他部分位置前几次作业整合
+运行framework.MyHttpServer启动服务器
