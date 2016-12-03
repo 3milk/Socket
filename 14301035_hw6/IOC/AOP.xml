@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+  <bean id="fooTarget" class="test.aop.FooImpl"/>
+  <bean id="myAdvice" class="test.aop.PrintBeforeAdvice"/>
+  <bean id="foo" class="ProxyFactory">
+    <property name="interfaces" value="test.aop.FooInterface"></property>
+    <property name="targetSource" ref="fooTarget"></property>
+    <property name="advisor" value="myAdvice"></property>
+  </bean>
+</beans>

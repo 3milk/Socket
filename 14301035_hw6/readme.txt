@@ -1,0 +1,3 @@
+测试类在test.aop包中
+使用了老师的AOP部分代码
+完善了XMLBeanFactory对工厂Bean的处理
